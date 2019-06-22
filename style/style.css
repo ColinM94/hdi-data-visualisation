@@ -1,0 +1,96 @@
+body {
+	font-family: "Open Sans", sans-serif;
+	font-size: 16px;
+	width: 100%;
+}
+h1{
+	font-size: 3em;
+	font-weight: 700;
+	color: #0099FF;
+	text-align: center;
+}
+a{
+	color: #333399;
+}
+a:hover{
+	color: #FF0099;
+}
+
+#map{
+	width: 1500px;
+	margin: auto;
+	border-style: groove;
+	border-width: 7px;
+}
+
+.countries {
+	stroke: #fff;
+	stroke-width:1px;
+}
+.countries:hover{
+	opacity: .6;
+}
+
+.legendLinear text {
+	font-size: 12px;
+}
+.d3-tip {
+	line-height: 1;
+	padding: 12px;
+	background: rgba(43,43,43, 0.8);
+	color: #fff;
+	border-radius: 2px;
+}
+
+/* Slider */
+.slidecontainer {
+	margin-left: 30%;
+	margin-right: 30%;
+	width: 40%; /* Width of the outside container */
+	margin-bottom: 20px;
+}
+
+/* The slider itself */
+#slider {
+	-webkit-appearance: none;  /* Override default CSS styles */
+	appearance: none;
+	width: 100%; /* Full-width */
+	height: 25px; /* Specified height */
+	background: #d3d3d3; /* Grey background */
+	outline: none; /* Remove outline */
+	opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+	-webkit-transition: .2s; /* 0.2 seconds transition on hover */
+	transition: opacity .2s;
+}
+
+/* Mouse-over effects */
+#slider:hover {
+	opacity: 1; /* Fully shown on mouse-over */
+}
+
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */ 
+#slider::-webkit-slider-thumb {
+	-webkit-appearance: none; /* Override default look */
+	appearance: none;
+	width: 25px; /* Set a specific slider handle width */
+	height: 25px; /* Slider handle height */
+	background: #4CAF50; /* Green background */
+	cursor: pointer; /* Cursor on hover */
+}
+
+#slider::-moz-range-thumb {
+	width: 25px; /* Set a specific slider handle width */
+	height: 25px; /* Slider handle height */
+	background: #4CAF50; /* Green background */
+	cursor: pointer; /* Cursor on hover */
+}
+
+#range{
+	text-align: center;
+	font-size: 2em;
+}
+
+#graphList{
+	font-size: 1.2em;
+	margin: auto;
+}

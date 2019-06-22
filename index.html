@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8">
+		<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700,300' rel='stylesheet' type='text/css'>
+		<link rel="stylesheet" type="text/css" href="style/style.css" />
+		<link rel="shortcut icon" type="image/ico" href="style/favicon.ico"/>
+		
+		<script src="//d3js.org/d3.v5.min.js"></script>
+		<script src="//d3js.org/queue.v1.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.6/d3-legend.min.js"></script>
+		<script src="https://d3js.org/topojson.v2.min.js"></script>
+		<script src="js/d3-tip.js"></script>
+	</head>
+	<body>
+		<h1>Human Development Index</h1>
+		<div id="map"></div>
+		<div class="slidecontainer">
+			<input type="range" min="1990" max="2017" value="1990" id="slider" id="myRange">
+			<div id="range">1990</div>
+		</div>
+		<table id="graphList">
+			<tr>
+				<th>Extra Graphs</th>
+			</tr>
+			<tr>
+				<td><a href="continents.html">Continent Comparison</a></td>
+			</tr>
+			<tr>			
+				<td><a href="improvement.html">Biggest Improvements 1990-2017</a></td>
+			</tr>
+		</table>	
+		<script>	
+
+			// Slider. 
+			var selectedYear = "1990";
+			
+			onload = function() 
+			{
+				document.getElementById("slider").oninput = function()
+				{
+					sliderChange();
+				}
+			}
+			
+			function sliderChange()
+			{
+				// Gets current slider value. 
+				var val = document.getElementById("slider").value;
+				
+				// Sets the displayed value. 
+				document.getElementById("range").innerHTML = val;
+				
+				// Sets selectedYear var to correct column name. 
+				selectedYear = val;
+				
+				//console.log("Selected Year " + selectedYear);
+				
+				updateMap();
+			}
+			
+			// Dimensions for SVG. 
+			var width = 1500;
+			var height = 800;
+			
+			// Creates SVG. 
+			var svg = d3.select('#map').append('svg')
+						.attr('width', width)
+						.attr('height', height);
+				
+			// Creates Mercator Projection map.
+			var projection = d3.geoMercator()
+				.scale(200) 
+				.translate([width / 2, height / 2]);
+
+			var path = d3.geoPath().projection(projection);
+						
+			var countryById = d3.map();
+			//var countries;
+		
+			// Set range of colours to be used. 			
+			var colour = d3.scaleLinear()
+								.domain([10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100])
+								.range(['#fcfbea','#fffbd1','#fefbbc','#fbfba9','#f6fa9a','#eff88d','#e6f582','#dcf279','#d1ed71','#c4e76b','#b6e065','#a7d860','#97cf5a','#86c453','#74b84c','#61aa43','#4d9a38','#398a2a','#227819','#006400']);			
+			
+			// Mouseover tooltip.
+			var tip = d3.tip()
+						.attr('class', 'd3-tip')
+						.offset([-5, 0])
+						.html(function(d) 
+						{
+							var dataRow = countryById.get(d.properties.id);
+							
+							// Checks if there is no entry or blank data for a country.
+							if (!dataRow || dataRow[selectedYear] == 0) 
+							{	
+								console.log("No Data", d);
+								return d.properties.name + ": No data";						
+							}						
+							else 
+							{
+								console.log(dataRow);
+							 	return dataRow["name"] + ": " + dataRow[selectedYear] + " | Rank: " + dataRow[selectedYear+"_rank"]; 
+							}
+						})
+			
+			svg.append('circle').attr('id', 'tipfollowscursor')  		
+			svg.call(tip);
+			
+			// Imports external files. 
+			var promises = [
+				d3.json("world.json"),
+				d3.csv("hdi_data.csv", typeAndSet)
+			]
+			
+			Promise.all(promises).then(loaded);
+						
+			function loaded([world, data]) 
+			{						
+				var countries = topojson.feature(world, world.objects.units).features;	
+				
+				svg.selectAll('path.countries')
+					.data(countries)
+					.enter()
+					.append('path')
+					.attr('class', 'countries')
+					.attr('d', path)
+					.style('fill', function(d, i) 
+					{
+						return setColour(d);
+					})
+					.on('mouseover', followCursor)
+					.on('mouseout', tip.hide)
+					.append("title");
+			}
+			
+			function updateMap()
+			{				
+				svg.selectAll("path.countries").style("fill", function(d) 
+				{
+					return setColour(d);
+				})
+			}
+			
+			// Keeps cursor near pointer. Without this it can appear off screen. 
+			function followCursor(d)
+			{
+				var target = d3.select('#tipfollowscursor')
+					.attr('cx', d3.event.offsetX)
+					.attr('cy', d3.event.offsetY - 5) // 5 pixels above the cursor
+					.node();
+					
+				tip.show(d, target);
+			}
+			
+			function typeAndSet(d) 
+			{
+				countryById.set(d.id, d);
+				return d;
+			}
+			
+			function setColour(d) 
+			{
+				var dataRow = countryById.get(d.properties.id);
+				
+				if(!dataRow || dataRow[selectedYear] == 0)
+				{
+					//console.log("No Data", d);
+					return "#ccc";
+				}
+				else
+				{
+					return colour(dataRow[selectedYear] * 100);
+				}
+			}
+		</script>	
+	</body>
+</html>
